@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OMNI AI — Clubkonect</title>
+<style>
+:root{--bg:#05070b;--panel:#0b1119;--line:#173b45;--green:#00ff9d;--cyan:#00d9ff;--muted:#7c9aa3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% 0%,#10313a 0,#05070b 42%);color:#dffefa;font:14px system-ui,Segoe UI,sans-serif;height:100vh;overflow:hidden}
+.app{display:grid;grid-template-columns:260px 1fr;height:100vh}.side{border-right:1px solid var(--line);background:#060b11e8;padding:18px;display:flex;flex-direction:column;gap:16px}
+.brand{font-weight:900;letter-spacing:3px;color:var(--green);font-size:20px}.tag{font-size:10px;color:var(--muted);letter-spacing:2px}
+button{border:1px solid #1d5661;background:#0b1c25;color:#bfffee;border-radius:8px;padding:11px;cursor:pointer}button:hover{border-color:var(--green);color:white}.new{background:#073226;border-color:#087d58;color:var(--green)}
+.nav{display:grid;gap:8px}.side .foot{margin-top:auto;color:#52717a;font-size:11px;line-height:1.6}
+.main{display:flex;flex-direction:column;min-width:0}.top{height:66px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#071019aa}.status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 15px var(--green)}
+.chat{flex:1;overflow:auto;padding:28px max(18px,calc((100% - 900px)/2));display:flex;flex-direction:column;gap:18px}.welcome{margin:auto;text-align:center;max-width:650px}.welcome h1{font-size:clamp(30px,6vw,58px);margin:0;color:white;letter-spacing:-2px}.welcome h1 span{color:var(--green);text-shadow:0 0 25px #00ff9d55}.welcome p{color:var(--muted);line-height:1.7}.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}.msg{display:flex;gap:12px;max-width:100%;line-height:1.7}.avatar{flex:0 0 34px;height:34px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;color:var(--green);background:#071b20;font-size:11px;font-weight:bold}.bubble{white-space:pre-wrap;overflow-wrap:anywhere;max-width:calc(100% - 46px)}.user .bubble{color:#d9f9ff}.assistant .bubble{color:#b9d8d8}
+.composer{padding:14px max(18px,calc((100% - 900px)/2));border-top:1px solid var(--line);background:#060b11}.form{display:flex;gap:10px;background:#0a151d;border:1px solid #24505a;border-radius:12px;padding:8px}.form:focus-within{border-color:var(--green);box-shadow:0 0 20px #00ff9d12}textarea{flex:1;resize:none;min-height:42px;max-height:150px;background:transparent;border:0;outline:0;color:white;padding:10px;font:inherit}.send{background:#073c2b;border-color:#00a96c;color:var(--green);min-width:72px}.hint{text-align:center;color:#49646b;font-size:10px;margin-top:8px}
+@media(max-width:700px){.app{grid-template-columns:1fr}.side{display:none}.top{padding:0 14px}.chat{padding:18px 14px}.composer{padding:10px 14px}}
+</style></head>
+<body><div class="app">
+<aside class="side"><div><div class="brand">OMNI AI</div><div class="tag">CLUBKONECT // COMPANY CORE</div></div>
+<button class="new" id="newChat">＋ New conversation</button><div class="nav"><button>⌘ All-in-one assistant</button><button>▣ Code laboratory</button><button>◈ File analysis</button><button>◉ Security desk</button></div>
+<div class="foot">REAL AI CONNECTION<br>Responses come from your configured model.<br><br>Clubkonect internal workspace</div></aside>
+<main class="main"><header class="top"><div><b>OMNI AI</b><div class="tag">ALL-IN-ONE INTELLIGENCE</div></div><div class="status"><span class="dot"></span> MODEL ONLINE</div></header>
+<section class="chat" id="chat"><div class="welcome" id="welcome"><h1>Welcome to <span>OMNI</span></h1><p>Your Clubkonect AI workspace for building, coding, analyzing, planning, and solving real problems.</p><div class="chips"><button data-p="Build a complete responsive website for Clubkonect.">Build a website</button><button data-p="Help me debug this code step by step.">Debug code</button><button data-p="Create a practical cybersecurity remediation checklist.">Security help</button></div></div></section>
+<div class="composer"><form class="form" id="form"><textarea id="input" placeholder="Ask OMNI AI anything for Clubkonect…" rows="1"></textarea><button class="send">Send ↗</button></form><div class="hint">OMNI AI can make mistakes. Verify important business, legal, financial, and security decisions.</div></div>
+</main></div>
+<script>
+const chat=document.querySelector("#chat"), input=document.querySelector("#input"), form=document.querySelector("#form"), welcome=document.querySelector("#welcome");
+let messages=[];
+function add(role,text){welcome?.remove();const row=document.createElement("div");row.className="msg "+role;row.innerHTML='<div class="avatar">'+(role==="user"?"YOU":"AI")+'</div><div class="bubble"></div>';row.querySelector(".bubble").textContent=text;chat.append(row);chat.scrollTop=chat.scrollHeight;return row.querySelector(".bubble")}
+async function send(text){if(!text.trim())return;add("user",text);messages.push({role:"user",content:text});input.value="";input.style.height="auto";const bubble=add("assistant","OMNI is thinking…");try{const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});const d=await r.json();if(!r.ok)throw Error(d.error);bubble.textContent=d.reply;messages.push({role:"assistant",content:d.reply})}catch(e){bubble.textContent="Connection error: "+e.message}}
+form.addEventListener("submit",e=>{e.preventDefault();send(input.value)});input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,150)+"px"});document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>send(b.dataset.p));document.querySelector("#newChat").onclick=()=>{messages=[];chat.innerHTML="";chat.append(welcome);};
+</script></body></html>
